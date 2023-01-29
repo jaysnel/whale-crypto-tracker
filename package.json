@@ -1,0 +1,11 @@
+{
+  "name": "whale-crypto-tracker",
+  "version": "1.0.0",
+  "description": "Tracks whales for different crypto",
+  "main": "index.js",
+  "author": "Jaylan Snelson",
+  "license": "MIT",
+  "dependencies": {
+    "ethers": "^5.7.2"
+  }
+}
