@@ -12,6 +12,9 @@ export default function TokenData() {
     const currentToken = tokenList.filter(tkn => tkn.name === coin)
       return currentToken[0]
   }
+  const bigNumberForHumans = (bigNumber) => {
+    return parseInt(bigNumber.toString())
+  }
   const getTokenData = async() => {
     try {
       if(ethers) {
@@ -25,9 +28,10 @@ export default function TokenData() {
         setName(name)
         
         contract.on('Transfer', (from, to, amount, data) => {
-          const parsedAmount = parseInt(amount.toString());
+          const parsedAmount = bigNumberForHumans(amount);
           if(parsedAmount >= Transfer_Threshold) {
             console.log(`New Whale Transfer for: ${name} - https://etherscan.io/tx/${data.transactionHash}`)
+            console.log(data)
             const thisTokenData = {
               from,
               to,
@@ -50,18 +54,31 @@ export default function TokenData() {
   return (
     <>
       <div>
-        {name}
-      </div>
-      <div>
-        {
-          tokenData.map((token, idx) => {
-            return (
-              <div key={idx}>
-                {`${token.to} => ${token.from}`}
-              </div>
-            )
-          })
-        }
+        <table>
+          <caption>{name}</caption>
+          <thead>
+            <tr>
+              <th scope="col">To</th>
+              <th scope="col">From</th>
+              <th scope="col">Amount</th>
+              <th scope="col">Txn</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              tokenData.map((token, idx) => {
+                return (
+                  <tr key={idx}>
+                    <td data-label="To">{token.to}</td>
+                    <td data-label="To">{token.from}</td>
+                    <td data-label="Amount">{bigNumberForHumans(token.amount)}</td>
+                    <td data-label="Transaction">{`Txn: https://etherscan.io/tx/${token.data.transactionHash}`}</td>
+                  </tr>
+                )
+              })
+            }
+          </tbody>
+        </table>
       </div>
     </>
   )
