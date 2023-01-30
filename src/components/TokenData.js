@@ -3,16 +3,14 @@ import { useParams } from "react-router-dom";
 
 export default function TokenData() {
   const [name, setName] = useState('')
+  const [tokenData, setTokenData] = useState([])
   const { tokenName } = useParams();
   const { ethers, Contract} = require('ethers')
   const tokenList = require('../token-address/tokens.json')
   const generalABI = require('../abi/GENERAL_ERC20_CONTRACT_ABI.json')
   const getToken = (coin) => {
     const currentToken = tokenList.filter(tkn => tkn.name === coin)
-      return {
-          name: currentToken[0].name, 
-          address: currentToken[0].address
-      }
+      return currentToken[0]
   }
   const getTokenData = async() => {
     try {
@@ -27,11 +25,16 @@ export default function TokenData() {
         setName(name)
         
         contract.on('Transfer', (from, to, amount, data) => {
-          // console.log(parseInt(amount.toString()))
-          // console.log(`New Whale Transfer for: ${name} - https://etherscan.io/tx/${data.transactionHash}`)
           const parsedAmount = parseInt(amount.toString());
           if(parsedAmount >= Transfer_Threshold) {
             console.log(`New Whale Transfer for: ${name} - https://etherscan.io/tx/${data.transactionHash}`)
+            const thisTokenData = {
+              from,
+              to,
+              amount,
+              data
+            }
+            setTokenData(tokenData => [...tokenData, thisTokenData])
           }
         })
       }
@@ -45,8 +48,21 @@ export default function TokenData() {
   }, [])
   
   return (
-    <div>
-      {name}
-    </div>
+    <>
+      <div>
+        {name}
+      </div>
+      <div>
+        {
+          tokenData.map((token, idx) => {
+            return (
+              <div key={idx}>
+                {`${token.to} => ${token.from}`}
+              </div>
+            )
+          })
+        }
+      </div>
+    </>
   )
 }
