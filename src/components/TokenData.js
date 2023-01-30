@@ -22,12 +22,15 @@ export default function TokenData() {
         const provider = new ethers.providers.JsonRpcProvider(ethRpcURL)
         const contract = new Contract(tokenContractAddresss.address, generalABI, provider)
         const name = await contract.name()
-        const Transfer_Threshold = 1000000000
+        const Transfer_Threshold = tokenContractAddresss.transfer_threshold
         
         setName(name)
         
         contract.on('Transfer', (from, to, amount, data) => {
-          if(amount.toNumber() >= Transfer_Threshold) {
+          // console.log(parseInt(amount.toString()))
+          // console.log(`New Whale Transfer for: ${name} - https://etherscan.io/tx/${data.transactionHash}`)
+          const parsedAmount = parseInt(amount.toString());
+          if(parsedAmount >= Transfer_Threshold) {
             console.log(`New Whale Transfer for: ${name} - https://etherscan.io/tx/${data.transactionHash}`)
           }
         })
